@@ -99,6 +99,64 @@ def gci(filepath):
         else:
             print os.path.join(filepath,fi_d)
 
+
+def walk(path):
+    '''
+    这个函数特别有意思，需要注意的地方有几点：
+    1、注意编码问题，解决方法是先判断编码格式，然后再decode，然后encode
+    2、list中输出全部是乱码，单独输出又是中文，是因为输出是以utf8进行输出，整体输出是按照str输出，要想整体输出中文，就用_uniout
+    3、写文件的话，需要先decode，然后再encode才能正常写入
+    :param path:
+    :return:
+    '''
+    if not os.path.exists(path):
+        print 'bcz'
+        return -1
+    lists = []
+    listfile = open('a.txt','w')
+    for root,dirs,names in os.walk(path):
+        for filename in names:
+            # import chardet
+            # print chardet.detect(filename)
+            lists.append(filename)
+            listfile.write(filename+'\n')
+            # print(os.path.join(root,filename.decode('gbk')))
+
+    # import _uniout
+    # print lists
+    # print _uniout.unescape(str(lists), 'utf8')
+    # print lists[3]
+    return lists
+
+
+def removefile(path,lists):
+    '''
+    这个函数特别有意思，需要注意的地方有几点：
+    1、注意编码问题，解决方法是先判断编码格式，然后再decode，然后encode
+    2、os.path.join(root.decode('gbk'), filename.decode('gbk'))要注意，join的两个参数的编码方式要一致
+
+    文件夹遍历
+    每次遍历的对象都是返回的是一个三元组(root,dirs,files)
+    root 所指的是当前正在遍历的这个文件夹的本身的地址
+    dirs 是一个 list ，内容是该文件夹中所有的目录的名字(不包括子目录)
+    files 同样是 list , 内容是该文件夹中所有的文件(不包括子目录)
+    :param path:
+    :return:
+    '''
+    print path.decode('gbk')
+    if not os.path.exists(path):
+        print 'bcz'
+        return -1
+    for root,dirs,names in os.walk(path):
+        for filename in names:
+            # print filename.decode('gbk')
+            # import _uniout
+            # print _uniout.unescape(str(lists), 'utf8')
+            if filename in lists:
+                print 'delete         ' + (os.path.join(root, filename))
+                # os.remove(os.path.join(root,filename))
+
+
 if __name__ == "__main__":
     # # 在Python的string前面加上‘r’， 是为了告诉编译器这个string是个raw string，不要转意
     # # 字符串加u表示将后面跟的字符串以unicode格式存储
@@ -117,7 +175,15 @@ if __name__ == "__main__":
     # filePathI = "D:\\test\\xxx.ini"
     # writeFile(filePathI)
 
-    pathfile = r'/Users/yefei/Downloads'
-    # 这里没把编码变换放到函数内部，是因为gci里面有递归，会造成错误，必须使得所有传入的参数都是Unicode
-    pathfile = pathfile.decode('utf8')
-    gci(pathfile)
+    # pathfile = r'/Users/yefei/Downloads'
+    # # 这里没把编码变换放到函数内部，是因为gci里面有递归，会造成错误，必须使得所有传入的参数都是Unicode
+    # pathfile = pathfile.decode('utf8')
+    # gci(pathfile)
+
+    #walk和removefile
+    path = r"/Users/yefei/Downloads"
+    path2 = r"/Users/yefei/Documents"
+    pathsrc = path.decode('utf8').encode('gbk')
+    pathdes = path2.decode('utf8').encode('gbk')
+
+    removefile(pathsrc, walk(pathdes))
